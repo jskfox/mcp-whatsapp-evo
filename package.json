@@ -48,6 +48,6 @@
   },
   "files": [
     "dist",
-    "config.example.yaml"
+    ".env.example"
   ]
 }
