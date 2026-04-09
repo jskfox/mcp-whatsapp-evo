@@ -29,43 +29,71 @@ npm run build
 
 ## Configuración
 
-Copia `config.example.yaml` a `config.yaml` y edita las credenciales:
+La configuración se realiza mediante variables de entorno. Copia `.env.example` a `.env` y edita las credenciales:
 
-```yaml
-evolution:
-  host: "http://tu-servidor:8080"  # URL de tu Evolution API
-  apiKey: "tu-api-key"
-
-permissions:
-  tier: "admin"  # Niveles: read, send, admin
-
-whitelist:
-  enabled: true
-  phones:
-    - "+5491112345678"  # Números permitidos (E.164)
-    - "+5491187654321"
-  groups:
-    - "123456789@g.us"  # Grupos permitidos (JID)
-  blockUnknown: true  # Rechazar mensajes de números no en whitelist
-
-webhook:
-  port: 3000
-  path: "/webhook"
-  token: "tu-token-secreto"  # Mínimo 8 caracteres
+```bash
+cp .env.example .env
 ```
 
 ### Variables de entorno
 
-| Variable | Descripción | Default |
-|----------|-------------|---------|
-| `MCP_WHATSAPP_CONFIG` | Path al archivo de config | `./config.yaml` |
+| Variable | Descripción | Requerido |
+|----------|-------------|-----------|
+| `EVOLUTION_HOST` | URL de tu Evolution API | ✅ Sí |
+| `EVOLUTION_API_KEY` | API key de autenticación | ✅ Sí |
+| `EVOLUTION_INSTANCE_NAME` | Nombre de la instancia WhatsApp | ✅ Sí |
+| `PERMISSIONS_TIER` | Nivel de permisos (read, send, admin) | No (default: admin) |
+| `WHITELIST_ENABLED` | Habilitar whitelist (true/false) | No (default: true) |
+| `WHITELIST_PHONES` | Teléfonos permitidos (comma-separated, E.164) | No |
+| `WHITELIST_GROUPS` | Grupos permitidos (comma-separated, JID) | No |
+| `WHITELIST_BLOCK_UNKNOWN` | Bloquear remitentes unknown | No (default: true) |
+| `WEBHOOK_PORT` | Puerto del servidor webhook | No (default: 3000) |
+| `WEBHOOK_PATH` | Path del endpoint webhook | No (default: /webhook) |
+| `WEBHOOK_TOKEN` | Token para autenticación del webhook | No |
+
+### Ejemplo .env
+
+```env
+EVOLUTION_HOST=http://localhost:8080
+EVOLUTION_API_KEY=mi-api-key
+EVOLUTION_INSTANCE_NAME=mi-instancia
+
+PERMISSIONS_TIER=admin
+
+WHITELIST_ENABLED=true
+WHITELIST_PHONES=+5491112345678,+5491187654321
+WHITELIST_GROUPS=123456789@g.us
+WHITELIST_BLOCK_UNKNOWN=true
+
+WEBHOOK_PORT=3000
+WEBHOOK_PATH=/webhook
+WEBHOOK_TOKEN=mi-token-secreto
+```
 
 ## Uso
 
 ### Ejecución con npx (sin instalar)
 
 ```bash
-npx @jskirk/mcp-whatsapp-evo --config config.yaml
+npx @jskirk/mcp-whatsapp-evo
+```
+
+### Ejecución instalada globalmente
+
+```bash
+# Después de: npm install -g @jskirk/mcp-whatsapp-evo
+mcp-whatsapp-evo
+```
+
+### Ejecución desde desarrollo
+
+```bash
+# Carga variables de entorno desde .env
+export $(cat .env | xargs)
+node dist/index.js
+
+# O directamente con.env
+node -r dotenv/config dist/index.js
 ```
 
 ### Ejecución instalada globalmente

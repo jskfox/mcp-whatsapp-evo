@@ -38,12 +38,13 @@ const E164_REGEX = /^\+?[1-9]\d{1,14}$/;
 const JID_REGEX = /^\d+@g\.us$/;
 
 export const WhitelistConfigSchema = z.object({
+  enabled: z.boolean(),
   phones: z.array(z.string().regex(E164_REGEX, { message: 'Phone must be E.164 format' })),
   groups: z.array(z.string().regex(JID_REGEX, { message: 'Group must be JID format (number@g.us)' })),
   blockUnknown: z.boolean(),
 }).refine(
-  (data) => data.phones.length > 0 || data.groups.length > 0 || data.blockUnknown === false,
-  { message: 'Must have at least one whitelisted phone/group or blockUnknown must be false' }
+  (data) => data.enabled === false || data.phones.length > 0 || data.groups.length > 0 || data.blockUnknown === false,
+  { message: 'Must have at least one whitelisted phone/group or blockUnknown must be false or whitelist disabled' }
 );
 
 // ============================================================================

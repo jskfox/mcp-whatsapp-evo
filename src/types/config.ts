@@ -28,6 +28,7 @@ export function hasPermission(userTier: PermissionTier, requiredTier: Permission
 // ============================================================================
 
 export interface WhitelistConfig {
+  enabled: boolean;
   phones: string[];
   groups: string[];
   blockUnknown: boolean;

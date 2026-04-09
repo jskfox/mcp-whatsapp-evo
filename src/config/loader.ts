@@ -117,6 +117,7 @@ function applyDefaults(config: unknown): AppConfigInput {
       token: typeof webhook?.token === 'string' ? webhook.token : '',
     },
     whitelist: {
+      enabled: typeof whitelist?.enabled === 'boolean' ? whitelist.enabled : true,
       phones: Array.isArray(whitelist?.phones) ? [...whitelist.phones] as string[] : [...DEFAULTS.whitelist.phones],
       groups: Array.isArray(whitelist?.groups) ? [...whitelist.groups] as string[] : [...DEFAULTS.whitelist.groups],
       blockUnknown: typeof whitelist?.blockUnknown === 'boolean' ? whitelist.blockUnknown : DEFAULTS.whitelist.blockUnknown,

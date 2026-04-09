@@ -25,11 +25,21 @@ export class WhitelistValidationError extends Error {
 // ============================================================================
 
 export class WhitelistValidator {
+  private readonly enabled: boolean;
   private readonly phoneSet: ReadonlySet<string>;
   private readonly groupSet: ReadonlySet<string>;
   private readonly blockUnknown: boolean;
 
   constructor(config: WhitelistConfig) {
+    this.enabled = config.enabled;
+
+    if (!this.enabled) {
+      this.phoneSet = new Set();
+      this.groupSet = new Set();
+      this.blockUnknown = false;
+      return;
+    }
+
     // Normalize phone numbers: ensure E.164 format
     this.phoneSet = new Set(
       config.phones.map((p) => normalizePhone(p))
@@ -42,9 +52,17 @@ export class WhitelistValidator {
   }
 
   /**
+   * Check if whitelist is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
    * Check if a phone number is whitelisted
    */
   isPhoneWhitelisted(phone: string): boolean {
+    if (!this.enabled) return true;
     const normalized = normalizePhone(phone);
     return this.phoneSet.has(normalized);
   }
@@ -53,6 +71,7 @@ export class WhitelistValidator {
    * Check if a group ID is whitelisted
    */
   isGroupWhitelisted(groupJid: string): boolean {
+    if (!this.enabled) return true;
     return this.groupSet.has(groupJid);
   }
 
@@ -61,6 +80,8 @@ export class WhitelistValidator {
    * @throws WhitelistValidationError if recipient is not whitelisted
    */
   validateOutbound(recipient: string, isGroup: boolean = false): void {
+    if (!this.enabled) return;
+
     if (isGroup) {
       if (!this.isGroupWhitelisted(recipient)) {
         throw new WhitelistValidationError(
@@ -83,6 +104,8 @@ export class WhitelistValidator {
    * Considers blockUnknown flag for phones not in whitelist
    */
   isInboundAcceptable(sender: string, isGroup: boolean = false): boolean {
+    if (!this.enabled) return true;
+
     if (isGroup) {
       // For groups, always require whitelist (no blockUnknown fallback)
       return this.isGroupWhitelisted(sender);
@@ -115,8 +138,9 @@ export class WhitelistValidator {
   /**
    * Get the count of whitelisted entries (for debugging/monitoring)
    */
-  getStats(): { phones: number; groups: number; blockUnknown: boolean } {
+  getStats(): { enabled: boolean; phones: number; groups: number; blockUnknown: boolean } {
     return {
+      enabled: this.enabled,
       phones: this.phoneSet.size,
       groups: this.groupSet.size,
       blockUnknown: this.blockUnknown,

@@ -37,6 +37,7 @@ permissions:
   tier: "read"
 
 whitelist:
+  enabled: true
   phones:
     - "+5511987654321"
   groups:
@@ -76,6 +77,7 @@ permissions:
   tier: "invalid-tier"
 
 whitelist:
+  enabled: true
   phones: []
   groups: []
   blockUnknown: true
@@ -103,6 +105,7 @@ permissions:
   tier: "read"
 
 whitelist:
+  enabled: true
   phones: []
   groups: []
   blockUnknown: false

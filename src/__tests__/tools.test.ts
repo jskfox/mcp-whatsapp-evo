@@ -115,6 +115,7 @@ describe('Tool Registry', () => {
         tier: PermissionTier.READ,
       },
       whitelist: {
+        enabled: true,
         phones: ['+5511987654321'],
         groups: ['123456789@g.us'],
         blockUnknown: true,

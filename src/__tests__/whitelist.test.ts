@@ -9,6 +9,7 @@ import type { WhitelistConfig } from '../types/config.js';
 describe('WhitelistValidator', () => {
   let validator: WhitelistValidator;
   const baseConfig: WhitelistConfig = {
+    enabled: true,
     phones: ['+5511987654321', '+1234567890'],
     groups: ['123456789@g.us'],
     blockUnknown: true,
@@ -16,6 +17,24 @@ describe('WhitelistValidator', () => {
 
   beforeEach(() => {
     validator = new WhitelistValidator(baseConfig);
+  });
+
+  describe('enabled flag', () => {
+    it('should allow all when enabled is false', () => {
+      const disabledValidator = new WhitelistValidator({
+        enabled: false,
+        phones: [],
+        groups: [],
+        blockUnknown: true,
+      });
+      expect(disabledValidator.isPhoneWhitelisted('+9999999999')).toBe(true);
+      expect(disabledValidator.isGroupWhitelisted('999999999@g.us')).toBe(true);
+      expect(() => disabledValidator.validateOutbound('+9999999999', false)).not.toThrow();
+    });
+
+    it('should check whitelist when enabled is true', () => {
+      expect(validator.isPhoneWhitelisted('+9999999999')).toBe(false);
+    });
   });
 
   describe('isPhoneWhitelisted', () => {

@@ -3,7 +3,7 @@
  * Main entry point - bootstraps MCP server, SDK connection, and webhook server
  */
 
-import { loadConfig, resolveConfigPath } from './config/loader.js';
+import { loadConfigFromEnv, isEnvConfigured, getRequiredEnvVars } from './config/env-loader.js';
 import { createToolRegistry, startServer } from './tools/index.js';
 import { createWebhookServer } from './webhook/server.js';
 import type { AppConfig, EvolutionSDK } from './types/config.js';
@@ -65,15 +65,22 @@ function setupSignalHandlers(webhookServer: ReturnType<typeof createWebhookServe
 async function main(): Promise<void> {
   console.info('[server] Starting WhatsApp MCP server...');
 
-  // Load configuration
-  const configPath = resolveConfigPath(process.argv);
+  // Check if environment is configured
+  if (!isEnvConfigured()) {
+    console.error('[config] Missing required environment variables:');
+    getRequiredEnvVars().forEach((v) => console.error(`  - ${v}`));
+    console.error('\nSee .env.example for reference.');
+    process.exit(1);
+  }
+
+  // Load configuration from environment
   let config: AppConfig;
 
   try {
-    config = loadConfig(configPath);
-    console.info(`[config] Loaded configuration from ${configPath}`);
+    config = loadConfigFromEnv();
+    console.info('[config] Configuration loaded from environment');
   } catch (err) {
-    console.error(`[config] Failed to load configuration: ${(err as Error).message}`);
+    console.error(`[config] Configuration error: ${(err as Error).message}`);
     process.exit(1);
   }
 
