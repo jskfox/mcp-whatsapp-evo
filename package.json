@@ -1,23 +1,37 @@
 {
-  "name": "mcp-whatsapp",
+  "name": "@jorge-skirk/mcp-whatsapp",
   "version": "1.0.0",
-  "description": "MCP server for WhatsApp integration using evolution2-api-sdk",
+  "description": "MCP server for WhatsApp integration using evolution2-api-sdk. Connect AI agents to WhatsApp with permission controls and whitelist validation.",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "bin": {
+    "mcp-whatsapp": "./dist/cli.js"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/add-shebang.js",
     "watch": "tsc --watch",
     "test": "vitest",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "mcp",
     "whatsapp",
     "evolution-api",
-    "ai-agent"
+    "ai-agent",
+    "modelcontextprotocol",
+    "chatbot",
+    "messaging"
   ],
   "author": "Jorge Solano Kirk",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jorge-skirk/mcp-whatsapp.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "evolution2-api-sdk": "^1.0.0",
@@ -31,5 +45,9 @@
     "eslint": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0"
-  }
+  },
+  "files": [
+    "dist",
+    "config.example.yaml"
+  ]
 }

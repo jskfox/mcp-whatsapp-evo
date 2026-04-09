@@ -6,15 +6,23 @@ Permite a un agente de AI enviar y recibir mensajes de WhatsApp de forma control
 
 ## Instalación
 
+### Paquete npm
+
+```bash
+npm install -g @jorge-skirk/mcp-whatsapp
+```
+
 ### Requisitos previos
 
 - Node.js 18+ (preferiblemente 20+)
 - npm o yarn
 - Una instancia de [Evolution API](https://github.com/jskfox/evolution2-api-sdk) corriendo
 
-### Build
+### Desarrollo (desde el repo)
 
 ```bash
+git clone https://github.com/jorge-skirk/mcp-whatsapp.git
+cd mcp-whatsapp
 npm install
 npm run build
 ```
@@ -54,7 +62,20 @@ webhook:
 
 ## Uso
 
-### Ejecución directa
+### Ejecución con npx (sin instalar)
+
+```bash
+npx @jorge-skirk/mcp-whatsapp --config config.yaml
+```
+
+### Ejecución instalada globalmente
+
+```bash
+# Después de: npm install -g @jorge-skirk/mcp-whatsapp
+mcp-whatsapp --config config.yaml
+```
+
+### Ejecución desde desarrollo
 
 ```bash
 # Con config por defecto (./config.yaml)
@@ -74,8 +95,8 @@ Agrega en `~/.cursor/mcp.json`:
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "node",
-      "args": ["/path/to/mcp-whatsapp/dist/index.js", "--config", "/path/to/config.yaml"]
+      "command": "mcp-whatsapp",
+      "args": ["--config", "/path/to/config.yaml"]
     }
   }
 }
@@ -83,14 +104,14 @@ Agrega en `~/.cursor/mcp.json`:
 
 #### VS Code (con extension MCP)
 
-相同，在 la configuración de extensiones MCP, agrega:
+En la configuración de extensiones MCP, agrega:
 
 ```json
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "node",
-      "args": ["/path/to/mcp-whatsapp/dist/index.js", "--config", "/path/to/config.yaml"]
+      "command": "mcp-whatsapp",
+      "args": ["--config", "/path/to/config.yaml"]
     }
   }
 }
@@ -105,8 +126,8 @@ En Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "node",
-      "args": ["C:\\path\\to\\mcp-whatsapp\\dist\\index.js", "--config", "C:\\path\\to\\config.yaml"]
+      "command": "mcp-whatsapp",
+      "args": ["--config", "/path/to/config.yaml"]
     }
   }
 }
@@ -120,8 +141,8 @@ En `~/.windsurf/mcp.json`:
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "node",
-      "args": ["/path/to/mcp-whatsapp/dist/index.js", "--config", "/path/to/config.yaml"]
+      "command": "mcp-whatsapp",
+      "args": ["--config", "/path/to/config.yaml"]
     }
   }
 }
@@ -333,6 +354,12 @@ npm test
 ## Desarrollo
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Build
+npm run build
+
 # Modo watch
 npm run watch
 
@@ -341,6 +368,16 @@ npm run lint
 
 # Tests
 npm test
+```
+
+## Publicar en npm
+
+```bash
+# Login en npm
+npm login
+
+# Publicar (scoped package requiere access)
+npm publish --access public
 ```
 
 ## Arquitectura de Seguridad
