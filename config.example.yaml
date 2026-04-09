@@ -1,0 +1,83 @@
+# =============================================================================
+# WhatsApp MCP Server Configuration
+# =============================================================================
+# This file defines the configuration for the WhatsApp MCP server.
+# Copy this to config.yaml and fill in your values.
+#
+# All security boundaries (phone numbers, groups, permissions) are defined
+# here. The MCP server will REFUSE to send messages to non-whitelisted
+# recipients and will DROP webhook messages from non-whitelisted senders.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Evolution API Configuration
+# Required. Connection details for your Evolution API instance.
+# -----------------------------------------------------------------------------
+evolution:
+  # The base URL of your Evolution API instance
+  # Example: https://your-api-server.com
+  host: "https://your-evolution-api.example.com"
+
+  # Your Evolution API authentication key
+  # Keep this secret! Do not commit to version control.
+  apiKey: "YOUR_EVOLUTION_API_KEY_HERE"
+
+  # Name of the WhatsApp instance to connect to
+  # This must already exist in your Evolution API
+  instanceName: "my-whatsapp-instance"
+
+# -----------------------------------------------------------------------------
+# Permissions Configuration
+# Controls what MCP tools the connected agent can use.
+# -----------------------------------------------------------------------------
+permissions:
+  # Permission tier for the agent:
+  # - read: Can only view messages, chats, contacts, groups (NO sending)
+  # - send: Can send messages to whitelisted numbers/groups
+  # - admin: Full access including creating groups, blocking contacts
+  #
+  # Tier inheritance: admin ⊃ send ⊃ read
+  # An agent with 'send' tier can use all 'read' tools but NOT 'admin' tools.
+  tier: "read"
+
+# -----------------------------------------------------------------------------
+# Whitelist Configuration
+# CRITICAL SECURITY: Defines what numbers/groups can be contacted.
+# ALL outbound messages are validated against this list.
+# Inbound webhooks from non-listed senders are dropped (unless blockUnknown=false).
+# -----------------------------------------------------------------------------
+whitelist:
+  # Phone numbers in E.164 format (country code + number, no spaces or symbols)
+  # Examples:
+  #   - "+5511987654321" (Brazil)
+  #   - "+1234567890" (USA)
+  #   - "+44123456789" (UK)
+  phones:
+    - "+5511987654321"
+    - "+1234567890"
+
+  # WhatsApp group IDs in JID format (number@g.us)
+  # Get this from the group webhook events or via API.
+  groups:
+    - "1234567890@g.us"
+
+  # Security setting for incoming messages:
+  # - true: ONLY accept messages from whitelisted phones/groups
+  # - false: Accept messages from ANY WhatsApp user (NOT RECOMMENDED)
+  blockUnknown: true
+
+# -----------------------------------------------------------------------------
+# Webhook Configuration
+# Server that receives incoming WhatsApp messages from Evolution API.
+# -----------------------------------------------------------------------------
+webhook:
+  # Port to listen on for incoming webhooks
+  port: 3000
+
+  # URL path for the webhook endpoint (must match Evolution API config)
+  path: "/webhook"
+
+  # Shared secret token for webhook authentication
+  # Must match what you configure in Evolution API webhook settings.
+  # Keep this secret! Do not commit to version control.
+  token: "YOUR_WEBHOOK_SECRET_TOKEN_HERE"
