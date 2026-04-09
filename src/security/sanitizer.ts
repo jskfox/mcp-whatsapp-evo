@@ -134,20 +134,42 @@ export class Sanitizer {
 
   /**
    * Sanitize a group JID
+   * Valid format: number@g.us (e.g., 123456789@g.us)
    */
   sanitizeGroupJid(jid: string): SanitizedResult<string> {
     if (typeof jid !== 'string') {
       return { value: '', sanitized: false, removedPatterns: [] };
     }
 
-    // Only allow format: number@g.us
-    const sanitized = jid.replace(/[^0-9@g.]/g, '');
+    // Match pattern: digits@g.us
+    const jidRegex = /^(\d+)@g\.us$/;
+    const match = jid.match(jidRegex);
     
-    if (sanitized !== jid) {
-      return { value: sanitized, sanitized: true, removedPatterns: ['invalid_jid_chars'] };
+    if (match) {
+      return { value: jid, sanitized: false, removedPatterns: [] };
     }
 
-    return { value: jid, sanitized: false, removedPatterns: [] };
+    // Invalid format - extract parts and reconstruct
+    // Format: number@g.us where number is ONLY digits
+    const atIndex = jid.indexOf('@');
+    if (atIndex > 0) {
+      const numberPart = jid.substring(0, atIndex);
+      const domainPart = jid.substring(atIndex);
+      
+      // Get only the first contiguous digit sequence from number part
+      const firstDigits = numberPart.match(/^(\d+)/)?.[1] || '';
+      
+      // Domain must be exactly @g.us (remove anything after .us)
+      const domainMatch = domainPart.match(/^(@g\.us)/);
+      const validDomain = domainMatch ? domainMatch[1] : '';
+      
+      if (firstDigits && validDomain) {
+        return { value: `${firstDigits}${validDomain}`, sanitized: true, removedPatterns: ['invalid_jid_chars'] };
+      }
+    }
+
+    // Cannot recover valid format
+    return { value: '', sanitized: true, removedPatterns: ['invalid_jid_format'] };
   }
 
   /**
