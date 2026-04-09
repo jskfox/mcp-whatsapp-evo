@@ -12,9 +12,9 @@ import {
 import { PermissionGuard } from '../security/permissions.js';
 import { WhitelistValidator } from '../security/whitelist.js';
 import { messageTools, sendTextTool, sendMediaTool, sendLocationTool, sendContactTool, sendReactionTool } from './messages.js';
-import { instanceTools, connectionStatusTool, setPresenceTool } from './instance.js';
-import { chatTools, checkNumberTool, getChatsTool, getContactsTool, getMessagesTool, markAsReadTool, blockContactTool } from './chat.js';
-import { groupTools, getGroupsTool, createGroupTool, updateGroupTool } from './group.js';
+import { instanceTools, connectionStatusTool, setPresenceTool, createInstanceTool, connectTool, disconnectTool } from './instance.js';
+import { chatTools, checkNumberTool, getChatsTool, getContactsTool, getMessagesTool, markAsReadTool, blockContactTool, sendPresenceTool } from './chat.js';
+import { groupTools, getGroupsTool, getGroupMembersTool, createGroupTool, updateGroupTool, sendGroupMessageTool, leaveGroupTool } from './group.js';
 import type { ToolDefinition, ToolContext, AppConfig, EvolutionSDK } from '../types/config.js';
 
 // ============================================================================
@@ -187,6 +187,9 @@ export {
   // Instance
   connectionStatusTool,
   setPresenceTool,
+  createInstanceTool,
+  connectTool,
+  disconnectTool,
   instanceTools,
   // Chat
   checkNumberTool,
@@ -195,10 +198,14 @@ export {
   getMessagesTool,
   markAsReadTool,
   blockContactTool,
+  sendPresenceTool,
   chatTools,
   // Groups
   getGroupsTool,
+  getGroupMembersTool,
   createGroupTool,
   updateGroupTool,
+  sendGroupMessageTool,
+  leaveGroupTool,
   groupTools,
 };

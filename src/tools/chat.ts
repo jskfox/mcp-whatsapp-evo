@@ -1,13 +1,13 @@
 /**
  * Chat and contact management tools (read + send tier)
+ * Compatible with evolution2-api-sdk 3.0.0
  */
 
 import { z } from 'zod';
 import { PermissionTier, type ToolDefinition, type ToolContext } from '../types/config.js';
-import { WhitelistValidator } from '../security/whitelist.js';
 
 // ============================================================================
-// Input Schemas
+// Input Schemas - Updated for SDK 3.0.0
 // ============================================================================
 
 export const CheckNumberSchema = z.object({
@@ -17,21 +17,30 @@ export const CheckNumberSchema = z.object({
 export const GetChatsSchema = z.object({});
 
 export const GetContactsSchema = z.object({
-  search: z.string().optional().describe('Search term for contact names'),
+  search: z.string().optional().describe('Search term for contact ID'),
 });
 
 export const GetMessagesSchema = z.object({
-  chatId: z.string().optional().describe('Chat ID to fetch messages from'),
-  limit: z.number().int().min(1).max(100).default(50).describe('Maximum messages to return'),
+  chatJid: z.string().optional().describe('Chat JID to fetch messages from'),
+  page: z.number().int().min(1).optional().default(1).describe('Page number'),
+  offset: z.number().int().min(0).optional().default(0).describe('Number of messages to skip'),
 });
 
 export const MarkAsReadSchema = z.object({
-  chatId: z.string().describe('Chat ID to mark as read'),
+  remoteJid: z.string().describe('Remote JID of the chat'),
+  id: z.string().describe('Message ID to mark as read'),
+  fromMe: z.boolean().default(false).describe('Whether the message was sent by me'),
 });
 
 export const BlockContactSchema = z.object({
-  contactId: z.string().describe('Contact ID to block/unblock'),
-  block: z.boolean().default(true).describe('True to block, false to unblock'),
+  number: z.string().describe('Contact number to block/unblock'),
+  action: z.enum(['block', 'unblock']).describe('Action to perform'),
+});
+
+export const SendPresenceSchema = z.object({
+  number: z.string().describe('Number to send presence to'),
+  presence: z.enum(['composing', 'recording', 'paused']).describe('Presence type'),
+  delay: z.number().int().min(0).optional().describe('Delay in milliseconds'),
 });
 
 // ============================================================================
@@ -48,15 +57,16 @@ async function handleCheckNumber(
   }
 
   const { phone } = parsed.data;
-  const hasWhatsApp = await context.sdk.hasWhatsApp({ phone });
-  return { success: true, data: { phone, hasWhatsApp } };
+  const result = await context.sdk.chat.hasWhatsapp({ numbers: [phone] });
+  const status = result[0];
+  return { success: true, data: { phone, hasWhatsApp: status.exists } };
 }
 
 async function handleGetChats(
   _params: unknown,
   context: ToolContext
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  const chats = await context.sdk.findChats();
+  const chats = await context.sdk.chat.findChats();
   return { success: true, data: chats };
 }
 
@@ -70,7 +80,7 @@ async function handleGetContacts(
   }
 
   const { search } = parsed.data;
-  const contacts = await context.sdk.findContacts({ search });
+  const contacts = await context.sdk.chat.findContacts(search ? { where: { id: search } } : undefined);
   return { success: true, data: contacts };
 }
 
@@ -83,8 +93,12 @@ async function handleGetMessages(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { chatId, limit } = parsed.data;
-  const messages = await context.sdk.findMessages({ chatId, limit });
+  const { chatJid, page, offset } = parsed.data;
+  const messages = await context.sdk.chat.findMessages({
+    where: chatJid ? { key: { remoteJid: chatJid } } : undefined,
+    page,
+    offset,
+  });
   return { success: true, data: messages };
 }
 
@@ -97,9 +111,11 @@ async function handleMarkAsRead(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { chatId } = parsed.data;
-  await context.sdk.markAsRead({ chatId });
-  return { success: true, data: { chatId, markedAsRead: true } };
+  const { remoteJid, id, fromMe } = parsed.data;
+  await context.sdk.chat.markAsRead({
+    readMessages: [{ remoteJid, fromMe, id }],
+  });
+  return { success: true, data: { remoteJid, markedAsRead: true } };
 }
 
 async function handleBlockContact(
@@ -111,9 +127,23 @@ async function handleBlockContact(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { contactId, block } = parsed.data;
-  await context.sdk.updateBlockStatus({ contactId, block });
-  return { success: true, data: { contactId, blocked: block } };
+  const { number, action } = parsed.data;
+  await context.sdk.chat.updateBlockStatus({ number, status: action });
+  return { success: true, data: { number, blocked: action === 'block' } };
+}
+
+async function handleSendPresence(
+  params: unknown,
+  context: ToolContext
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  const parsed = SendPresenceSchema.safeParse(params);
+  if (!parsed.success) {
+    return { success: false, error: `Invalid params: ${parsed.error.message}` };
+  }
+
+  const { number, presence, delay } = parsed.data;
+  await context.sdk.chat.sendPresence({ number, presence, delay });
+  return { success: true, data: { number, presence } };
 }
 
 // ============================================================================
@@ -168,6 +198,14 @@ export const blockContactTool: ToolDefinition = {
   handler: handleBlockContact as ToolDefinition['handler'],
 };
 
+export const sendPresenceTool: ToolDefinition = {
+  name: 'whatsapp_send_presence',
+  description: 'Send typing or recording indicator',
+  requiredTier: PermissionTier.SEND,
+  inputSchema: SendPresenceSchema,
+  handler: handleSendPresence as ToolDefinition['handler'],
+};
+
 export const chatTools: ToolDefinition[] = [
   checkNumberTool,
   getChatsTool,
@@ -175,4 +213,5 @@ export const chatTools: ToolDefinition[] = [
   getMessagesTool,
   markAsReadTool,
   blockContactTool,
+  sendPresenceTool,
 ];

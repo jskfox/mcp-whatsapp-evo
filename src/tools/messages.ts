@@ -1,5 +1,6 @@
 /**
  * Message sending tools (send tier + whitelist-gated)
+ * Compatible with evolution2-api-sdk 3.0.0
  */
 
 import { z } from 'zod';
@@ -7,37 +8,48 @@ import { PermissionTier, type ToolDefinition, type ToolContext } from '../types/
 import { WhitelistValidator } from '../security/whitelist.js';
 
 // ============================================================================
-// Input Schemas
+// Input Schemas - Updated for SDK 3.0.0
 // ============================================================================
 
 export const SendTextSchema = z.object({
-  to: z.string().describe('Recipient phone number (E.164 format) or group JID'),
+  number: z.string().describe('Recipient phone number (E.164 format) or group JID'),
   text: z.string().min(1).max(4096).describe('Message text (max 4096 characters)'),
+  delay: z.number().int().min(0).max(60000).optional().describe('Delay in milliseconds'),
+  linkPreview: z.boolean().optional().describe('Enable link preview'),
 });
 
 export const SendMediaSchema = z.object({
-  to: z.string().describe('Recipient phone number (E.164 format) or group JID'),
-  mediaUrl: z.string().url().describe('URL of the media file'),
-  caption: z.string().max(1024).optional().describe('Optional caption for the media'),
-  mimeType: z.string().optional().describe('MIME type of the media (e.g., image/jpeg)'),
+  number: z.string().describe('Recipient phone number (E.164 format) or group JID'),
+  mediatype: z.enum(['image', 'video', 'document']).describe('Media type'),
+  media: z.string().describe('URL or base64 of the media file'),
+  caption: z.string().max(1024).optional().describe('Optional caption'),
+  fileName: z.string().optional().describe('Optional file name'),
 });
 
 export const SendLocationSchema = z.object({
-  to: z.string().describe('Recipient phone number (E.164 format) or group JID'),
+  number: z.string().describe('Recipient phone number (E.164 format) or group JID'),
   latitude: z.number().min(-90).max(90).describe('Latitude coordinate'),
   longitude: z.number().min(-180).max(180).describe('Longitude coordinate'),
-  name: z.string().max(100).optional().describe('Optional name for the location'),
+  name: z.string().max(100).optional().describe('Optional location name'),
   address: z.string().max(200).optional().describe('Optional address'),
 });
 
 export const SendContactSchema = z.object({
-  to: z.string().describe('Recipient phone number (E.164 format) or group JID'),
-  contactId: z.string().describe('Contact ID to send'),
+  number: z.string().describe('Recipient phone number (E.164 format) or group JID'),
+  contact: z.array(z.object({
+    fullName: z.string(),
+    wuid: z.string().describe('WhatsApp ID'),
+    phoneNumber: z.string(),
+    organization: z.string().optional(),
+    email: z.string().optional(),
+    url: z.string().optional(),
+  })).min(1).describe('Contact information array'),
 });
 
 export const SendReactionSchema = z.object({
-  to: z.string().describe('Message ID to react to'),
-  messageId: z.string().describe('The message ID to react to'),
+  remoteJid: z.string().describe('Remote JID of the message'),
+  fromMe: z.boolean().describe('Whether the message was sent by me'),
+  id: z.string().describe('Message ID to react to'),
   reaction: z.string().max(50).describe('Reaction emoji'),
 });
 
@@ -54,21 +66,16 @@ async function handleSendText(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { to, text } = parsed.data;
+  const { number, text, delay, linkPreview } = parsed.data;
 
-  // Whitelist check
-  const isGroup = to.includes('@g.us');
+  const isGroup = number.includes('@g.us');
   try {
-    context.whitelist.validateOutbound(to, isGroup);
+    context.whitelist.validateOutbound(number, isGroup);
   } catch (err) {
-    return {
-      success: false,
-      error: `Security: ${(err as Error).message}`,
-    };
+    return { success: false, error: `Security: ${(err as Error).message}` };
   }
 
-  // Send via SDK
-  const result = await context.sdk.sendText({ to, text });
+  const result = await context.sdk.message.sendText({ number, text, delay, linkPreview });
   return { success: true, data: result };
 }
 
@@ -81,21 +88,16 @@ async function handleSendMedia(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { to, mediaUrl, caption, mimeType } = parsed.data;
+  const { number, mediatype, media, caption, fileName } = parsed.data;
 
-  // Whitelist check
-  const isGroup = to.includes('@g.us');
+  const isGroup = number.includes('@g.us');
   try {
-    context.whitelist.validateOutbound(to, isGroup);
+    context.whitelist.validateOutbound(number, isGroup);
   } catch (err) {
-    return {
-      success: false,
-      error: `Security: ${(err as Error).message}`,
-    };
+    return { success: false, error: `Security: ${(err as Error).message}` };
   }
 
-  // Send via SDK
-  const result = await context.sdk.sendMedia({ to, mediaUrl, caption, mimeType });
+  const result = await context.sdk.message.sendMedia({ number, mediatype, media, caption, fileName });
   return { success: true, data: result };
 }
 
@@ -108,21 +110,22 @@ async function handleSendLocation(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { to, latitude, longitude, name, address } = parsed.data;
+  const { number, latitude, longitude, name, address } = parsed.data;
 
-  // Whitelist check
-  const isGroup = to.includes('@g.us');
+  const isGroup = number.includes('@g.us');
   try {
-    context.whitelist.validateOutbound(to, isGroup);
+    context.whitelist.validateOutbound(number, isGroup);
   } catch (err) {
-    return {
-      success: false,
-      error: `Security: ${(err as Error).message}`,
-    };
+    return { success: false, error: `Security: ${(err as Error).message}` };
   }
 
-  // Send via SDK
-  const result = await context.sdk.sendLocation({ to, latitude, longitude, name, address });
+  const result = await context.sdk.message.sendLocation({ 
+    number, 
+    latitude, 
+    longitude, 
+    name: name || '', 
+    address: address || '' 
+  });
   return { success: true, data: result };
 }
 
@@ -135,21 +138,16 @@ async function handleSendContact(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { to, contactId } = parsed.data;
+  const { number, contact } = parsed.data;
 
-  // Whitelist check
-  const isGroup = to.includes('@g.us');
+  const isGroup = number.includes('@g.us');
   try {
-    context.whitelist.validateOutbound(to, isGroup);
+    context.whitelist.validateOutbound(number, isGroup);
   } catch (err) {
-    return {
-      success: false,
-      error: `Security: ${(err as Error).message}`,
-    };
+    return { success: false, error: `Security: ${(err as Error).message}` };
   }
 
-  // Send via SDK
-  const result = await context.sdk.sendContact({ to, contactId });
+  const result = await context.sdk.message.sendContact({ number, contact });
   return { success: true, data: result };
 }
 
@@ -162,10 +160,12 @@ async function handleSendReaction(
     return { success: false, error: `Invalid params: ${parsed.error.message}` };
   }
 
-  const { to, messageId, reaction } = parsed.data;
+  const { remoteJid, fromMe, id, reaction } = parsed.data;
 
-  // Send via SDK (no whitelist needed - reactions are to existing messages)
-  const result = await context.sdk.sendReaction({ to, messageId, reaction });
+  const result = await context.sdk.message.sendReaction({
+    key: { remoteJid, fromMe, id },
+    reaction,
+  });
   return { success: true, data: result };
 }
 

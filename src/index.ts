@@ -89,7 +89,7 @@ async function main(): Promise<void> {
 
   // Connect to WhatsApp instance
   try {
-    await sdk.connect();
+    await sdk.instance.connect();
     console.info('[sdk] Connected to WhatsApp instance');
   } catch (err) {
     console.error('[sdk] Failed to connect to WhatsApp:', err);
