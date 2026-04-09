@@ -16,7 +16,7 @@
     "evolution-api",
     "ai-agent"
   ],
-  "author": "Jorge Solano Kirk <jorgesolano@example.com> (http://github.com/jskfox/)",
+  "author": "Jorge Solano Kirk",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

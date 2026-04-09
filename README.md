@@ -377,4 +377,12 @@ ISC
 
 ## Autor
 
-Jorge Solano Kirk (http://github.com/jskfox/)
+**Jorge Solano Kirk**
+
+- GitHub: [jorge-skirk](https://github.com/jorge-skirk)
+- Twitter/X: [@jskfox](https://x.com/jskfox)
+- LinkedIn: jorge.skirk
+
+---
+
+Hecho con ❤️
