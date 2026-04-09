@@ -1,11 +1,11 @@
 {
-  "name": "@jorge-skirk/mcp-whatsapp",
+  "name": "@jskirk/mcp-whatsapp-evo",
   "version": "1.0.0",
   "description": "MCP server for WhatsApp integration using evolution2-api-sdk. Connect AI agents to WhatsApp with permission controls and whitelist validation.",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "mcp-whatsapp": "./dist/cli.js"
+    "mcp-whatsapp-evo": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc && node scripts/add-shebang.js",
@@ -27,7 +27,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jorge-skirk/mcp-whatsapp.git"
+    "url": "https://github.com/jskfox/mcp-whatsapp-evo.git"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -9,7 +9,7 @@ Permite a un agente de AI enviar y recibir mensajes de WhatsApp de forma control
 ### Paquete npm
 
 ```bash
-npm install -g @jorge-skirk/mcp-whatsapp
+npm install -g @jskirk/mcp-whatsapp-evo
 ```
 
 ### Requisitos previos
@@ -21,7 +21,7 @@ npm install -g @jorge-skirk/mcp-whatsapp
 ### Desarrollo (desde el repo)
 
 ```bash
-git clone https://github.com/jorge-skirk/mcp-whatsapp.git
+git clone https://github.com/jskfox/mcp-whatsapp.git
 cd mcp-whatsapp
 npm install
 npm run build
@@ -65,13 +65,13 @@ webhook:
 ### Ejecución con npx (sin instalar)
 
 ```bash
-npx @jorge-skirk/mcp-whatsapp --config config.yaml
+npx @jskirk/mcp-whatsapp-evo --config config.yaml
 ```
 
 ### Ejecución instalada globalmente
 
 ```bash
-# Después de: npm install -g @jorge-skirk/mcp-whatsapp
+# Después de: npm install -g @jskirk/mcp-whatsapp-evo
 mcp-whatsapp --config config.yaml
 ```
 
@@ -257,7 +257,7 @@ n8n puede usar este MCP server como integración:
   "mcpServers": {
     "whatsapp": {
       "command": "node",
-      "args": ["/path/to/mcp-whatsapp/dist/index.js", "--config", "/path/to/config.yaml"]
+      "args": ["/path/to/mcp-whatsapp-evo/dist/index.js", "--config", "/path/to/config.yaml"]
     }
   }
 }
@@ -416,7 +416,7 @@ ISC
 
 **Jorge Solano Kirk**
 
-- GitHub: [jorge-skirk](https://github.com/jorge-skirk)
+- GitHub: [jskfox](https://github.com/jskfox)
 - Twitter/X: [@jskfox](https://x.com/jskfox)
 - LinkedIn: jorge.skirk
 
