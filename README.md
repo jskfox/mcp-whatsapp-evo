@@ -75,7 +75,12 @@ WEBHOOK_TOKEN=mi-token-secreto
 ### Ejecución con npx (sin instalar)
 
 ```bash
+# Carga variables de entorno desde .env
+export $(cat .env | xargs)
 npx @jskirk/mcp-whatsapp-evo
+
+# O directamente con dotenv
+node -r dotenv/config node_modules/.bin/mcp-whatsapp-evo
 ```
 
 ### Ejecución instalada globalmente
@@ -85,35 +90,63 @@ npx @jskirk/mcp-whatsapp-evo
 mcp-whatsapp-evo
 ```
 
-### Ejecución desde desarrollo
+### Integración con Editors usando npx
 
-```bash
-# Carga variables de entorno desde .env
-export $(cat .env | xargs)
-node dist/index.js
+Si prefieres usar `npx` en lugar del binario global, configura tu editor así:
 
-# O directamente con dotenv
-node -r dotenv/config dist/index.js
-```
-
-### Integración con Editors (MCP Clients)
-
-#### Cursor
-
-Agrega en `~/.cursor/mcp.json`:
+#### Windsurf (npx)
 
 ```json
 {
   "mcpServers": {
     "whatsapp": {
       "command": "bash",
-      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
+      "args": ["-c", "source ~/.env_whatsapp && npx @jskirk/mcp-whatsapp-evo"]
     }
   }
 }
 ```
 
-Luego crea `~/.env_whatsapp` con las variables:
+#### Cursor (npx)
+
+```json
+{
+  "mcpServers": {
+    "whatsapp": {
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && npx @jskirk/mcp-whatsapp-evo"]
+    }
+  }
+}
+```
+
+#### Claude Desktop (npx)
+
+```json
+{
+  "mcpServers": {
+    "whatsapp": {
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && npx @jskirk/mcp-whatsapp-evo"]
+    }
+  }
+}
+```
+
+#### VS Code (npx)
+
+```json
+{
+  "mcpServers": {
+    "whatsapp": {
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && npx @jskirk/mcp-whatsapp-evo"]
+    }
+  }
+}
+```
+
+Crea `~/.env_whatsapp` con las variables:
 
 ```env
 EVOLUTION_HOST=http://localhost:8080
@@ -124,50 +157,6 @@ WHITELIST_ENABLED=true
 WHITELIST_PHONES=+5491112345678
 WEBHOOK_PORT=3000
 WEBHOOK_TOKEN=mi-token
-```
-
-#### VS Code (con extension MCP)
-
-```json
-{
-  "mcpServers": {
-    "whatsapp": {
-      "command": "bash",
-      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
-    }
-  }
-}
-```
-
-#### Claude Desktop (Anthropic)
-
-En Mac: `~/Library/Application Support/Claude/claude_desktop_config.json`
-En Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "whatsapp": {
-      "command": "bash",
-      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
-    }
-  }
-}
-```
-
-#### Windsurf
-
-En `~/.windsurf/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "whatsapp": {
-      "command": "bash",
-      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
-    }
-  }
-}
 ```
 
 ## Herramientas Disponibles (16 tools)
