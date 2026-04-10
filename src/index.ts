@@ -19,6 +19,7 @@ async function createSDK(config: AppConfig): Promise<EvolutionSDK> {
   const sdk = new EvolutionSDKClass({
     host: config.evolution.host,
     apiKey: config.evolution.apiKey,
+    instanceName: config.evolution.instanceName,
   });
 
   return sdk as unknown as EvolutionSDK;
