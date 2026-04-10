@@ -92,25 +92,8 @@ mcp-whatsapp-evo
 export $(cat .env | xargs)
 node dist/index.js
 
-# O directamente con.env
+# O directamente con dotenv
 node -r dotenv/config dist/index.js
-```
-
-### Ejecución instalada globalmente
-
-```bash
-# Después de: npm install -g @jskirk/mcp-whatsapp-evo
-mcp-whatsapp --config config.yaml
-```
-
-### Ejecución desde desarrollo
-
-```bash
-# Con config por defecto (./config.yaml)
-node dist/index.js
-
-# Con config custom
-node dist/index.js --config /path/to/config.yaml
 ```
 
 ### Integración con Editors (MCP Clients)
@@ -123,23 +106,34 @@ Agrega en `~/.cursor/mcp.json`:
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "mcp-whatsapp",
-      "args": ["--config", "/path/to/config.yaml"]
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
     }
   }
 }
 ```
 
-#### VS Code (con extension MCP)
+Luego crea `~/.env_whatsapp` con las variables:
 
-En la configuración de extensiones MCP, agrega:
+```env
+EVOLUTION_HOST=http://localhost:8080
+EVOLUTION_API_KEY=mi-api-key
+EVOLUTION_INSTANCE_NAME=mi-instancia
+PERMISSIONS_TIER=admin
+WHITELIST_ENABLED=true
+WHITELIST_PHONES=+5491112345678
+WEBHOOK_PORT=3000
+WEBHOOK_TOKEN=mi-token
+```
+
+#### VS Code (con extension MCP)
 
 ```json
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "mcp-whatsapp",
-      "args": ["--config", "/path/to/config.yaml"]
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
     }
   }
 }
@@ -154,8 +148,8 @@ En Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "mcp-whatsapp",
-      "args": ["--config", "/path/to/config.yaml"]
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
     }
   }
 }
@@ -169,8 +163,8 @@ En `~/.windsurf/mcp.json`:
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "mcp-whatsapp",
-      "args": ["--config", "/path/to/config.yaml"]
+      "command": "bash",
+      "args": ["-c", "source ~/.env_whatsapp && mcp-whatsapp-evo"]
     }
   }
 }
@@ -230,12 +224,12 @@ Un agente con tier `send` puede usar herramientas `read` y `send`, pero no `admi
 
 ## Whitelist
 
-Cuando `whitelist.enabled: true`:
+Cuando `WHITELIST_ENABLED=true`:
 
 - **Envíos salientes**: Solo puede enviar a números/grupos en la whitelist
-- **Recepciones entrantes**: Si `blockUnknown: true`, ignora mensajes de números no en whitelist
+- **Recepciones entrantes**: Si `WHITELIST_BLOCK_UNKNOWN=true`, ignora mensajes de números no en whitelist
 
-Cuando `whitelist.enabled: false`:
+Cuando `WHITELIST_ENABLED=false`:
 - Puede enviar a cualquier número
 - recibe de cualquier número
 
@@ -285,7 +279,7 @@ n8n puede usar este MCP server como integración:
   "mcpServers": {
     "whatsapp": {
       "command": "node",
-      "args": ["/path/to/mcp-whatsapp-evo/dist/index.js", "--config", "/path/to/config.yaml"]
+      "args": ["/path/to/mcp-whatsapp-evo/dist/index.js"]
     }
   }
 }
@@ -351,7 +345,7 @@ Los logs van a stdout/stderr:
 
 ```
 [server] Starting WhatsApp MCP server...
-[config] Loaded configuration from ./config.yaml
+[config] Loaded configuration from environment
 [sdk] Evolution API SDK initialized
 [sdk] Connected to WhatsApp instance
 [mcp] Registered 16 tools
@@ -367,11 +361,11 @@ Verifica que tu Evolution API tenga la instancia conectada y el webhook configur
 
 ### "Number not in whitelist"
 
-El número no está en la whitelist. Agrégalo a `config.yaml` en `whitelist.phones`.
+El número no está en la whitelist. Agrégalo a `.env` en `WHITELIST_PHONES`.
 
 ### "Permission denied"
 
-El tier del agente es insuficiente para esa tool. Aumenta el tier en `permissions.tier`.
+El tier del agente es insuficiente para esa tool. Aumenta el tier en `PERMISSIONS_TIER`.
 
 ### Tests fallan
 
