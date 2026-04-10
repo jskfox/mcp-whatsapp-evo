@@ -153,14 +153,23 @@ export class WhitelistValidator {
 // ============================================================================
 
 /**
- * Normalize a phone number to E.164 format
+ * Normalize a phone number to canonical E.164 format
  * Removes all non-digit characters except leading +
+ * Handles Mexican mobile format where WhatsApp inserts '1' after country code 52
+ * e.g. 5216862155218 -> +526862155218 (same number)
  */
 export function normalizePhone(phone: string): string {
-  // Strip all non-digit characters
   const digits = phone.replace(/[^\d]/g, '');
 
-  // Ensure it starts with +
+  // Handle Mexican mobile format: 521XXXXXXXXX -> 52XXXXXXXXX
+  // WhatsApp sends Mexican mobiles as 521 (country +1), but real number is 52X
+  if (digits.startsWith('521') && digits.length === 13) {
+    // Remove the '1' after 52 to get canonical form
+    // e.g. 5216862155218 -> 526862155218
+    return `+${digits.slice(0, 2)}${digits.slice(3)}`;
+  }
+
+  // Standard E.164: ensure it starts with +
   if (!phone.startsWith('+') && !phone.startsWith('00')) {
     return `+${digits}`;
   }
