@@ -1,6 +1,6 @@
 {
   "name": "@jskirk/mcp-whatsapp-evo",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "MCP server for WhatsApp integration using evolution2-api-sdk. Connect AI agents to WhatsApp with permission controls and whitelist validation.",
   "type": "module",
   "main": "./dist/index.js",
