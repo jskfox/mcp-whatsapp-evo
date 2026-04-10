@@ -13,10 +13,8 @@ import type { AppConfig, EvolutionSDK } from './types/config.js';
 // ============================================================================
 
 async function createSDK(config: AppConfig): Promise<EvolutionSDK> {
-  // Dynamic import for CommonJS SDK in ESM context
   const sdkModule = await import('evolution2-api-sdk');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const EvolutionSDKClass = sdkModule.default as any;
+  const EvolutionSDKClass = sdkModule.Evolution2SDK;
   
   const sdk = new EvolutionSDKClass({
     host: config.evolution.host,
