@@ -21,8 +21,8 @@ npm install -g @jskirk/mcp-whatsapp-evo
 ### Desarrollo (desde el repo)
 
 ```bash
-git clone https://github.com/jskfox/mcp-whatsapp.git
-cd mcp-whatsapp
+git clone https://github.com/jskfox/mcp-whatsapp-evo.git
+cd mcp-whatsapp-evo
 npm install
 npm run build
 ```
