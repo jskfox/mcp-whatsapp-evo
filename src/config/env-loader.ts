@@ -5,7 +5,13 @@
 
 import { AppConfigSchema, type AppConfigInput } from './schema.js';
 import type { AppConfig, PermissionTier } from '../types/config.js';
-import { ConfigValidationError } from './loader.js';
+
+export class ConfigValidationError extends Error {
+  constructor(errors: string[]) {
+    super(`Invalid configuration:\n${errors.join('\n')}`);
+    this.name = 'ConfigValidationError';
+  }
+}
 
 // ============================================================================
 // Environment Variable Names
