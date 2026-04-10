@@ -9,6 +9,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { PermissionGuard } from '../security/permissions.js';
 import { WhitelistValidator } from '../security/whitelist.js';
 import { messageTools, sendTextTool, sendMediaTool, sendLocationTool, sendContactTool, sendReactionTool } from './messages.js';
@@ -80,7 +81,7 @@ export function createToolRegistry(
       tools: allTools.map((tool) => ({
         name: tool.name,
         description: tool.description,
-        inputSchema: tool.inputSchema,
+        inputSchema: zodToJsonSchema(tool.inputSchema),
       })),
     };
   });
